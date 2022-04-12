@@ -1,0 +1,151 @@
+import sys
+from PyQt6.QtWidgets import QWidget, QApplication, QHBoxLayout, QPushButton, QVBoxLayout, QGridLayout
+from PyQt6.QtCore import Qt
+from PyQt6 import *
+from capsula import Capsula
+from statistiche import statistiche
+
+
+class Window(QWidget):
+
+    def __init__(self):
+        super().__init__()
+
+        self.initUI()
+
+    def initUI(self):
+        okButton = QPushButton("OK")
+        grid = QGridLayout()
+
+        # CAPSULA
+
+        caps = Capsula(
+            ["#49006a", "#7a0177", "#ae017e", "#dd3497", "#f768a1", "#fa9fb5", "#fcc5c0", "#fde0dd", "#fff7f3"])
+        caps.setBarPadding(2)
+        caps.setBarSolidPercent(0.9)
+        caps.setBackgroundColor('gray')
+        caps.sizeHint()
+        caps.setFixedWidth(100)
+        caps.setFixedHeight(300)
+        grid.addWidget(caps, 0, 0)
+
+        grid.addWidget(okButton, 1, 0)
+
+        # BOTTONE IMPOSTAZIONI
+        impost = QPushButton("Impostazioni")
+        impost.setMaximumWidth(100)
+        grid.addWidget(impost, 1, 1, alignment=Qt.AlignmentFlag.AlignRight)
+
+        # STATISTICHE
+
+        c = statistiche()
+        grid.addWidget(c, 0, 1)
+
+        self.setLayout(grid)
+
+        self.setGeometry(400, 150, 800, 480)
+        self.setWindowTitle('IceMaker v0.1.0')
+        self.show()
+
+
+def main():
+    app = QApplication(sys.argv)
+    ex = Window()
+    sys.exit(app.exec())
+
+
+if __name__ == '__main__':
+    main()
+
+# STATISTICHE
+
+from PyQt6.QtWidgets import QVBoxLayout, QWidget, QLabel
+from PyQt6.QtGui import QFont
+
+# POSIZIONE STATISTICHE
+s_pos_x = 30
+s_pos_y = 100
+
+# DIMENSIONE COLONNA STATISTICHE
+s_dim_c_x = 200
+s_dim_c_y = 30
+
+# FONT STATISTICHE
+font_main = QFont("Times", 12)
+font_value = QFont("Times", 12)
+
+
+class statistiche(QWidget):
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent=parent)
+        lay = QVBoxLayout(self)
+
+        # APERTURA DATABASE GUSTI UTILIZZATI
+        with open('./data_save.txt') as f:
+            g = f.read().splitlines()
+        g1 = list(filter(None, g))
+        gusti = []
+        for i in range(len(g1)):
+            temp = g1[i].split(",")
+            gusti.append(temp)
+        n_gusti = len(gusti)
+        print(n_gusti)
+
+        # STATISTICHE GELATI DALL'ACCENSIONE
+        n_gelati = QLabel("Numero Gelati (Dall'accensione)")
+        n_gelati.setFont(font_main)
+        lay.addWidget(n_gelati)
+
+        # GENERAZIONE STATISTICHE SUI GUSTI UTILIZZATI
+        for i in range(n_gusti):
+            column_name = str(gusti[i][0]) + '_label_name'
+            g_val = str("Numero gelati ") + str(gusti[i][0])
+            self.column_name = QLabel(g_val, self)
+            self.column_name.resize(s_dim_c_x, s_dim_c_y)
+            self.column_name.move(s_pos_x, s_pos_y + (i - 1) * 20)
+            self.column_name.setFont(font_main)
+
+            # VALORI
+            column_name = str(gusti[i][1]) + '_label_name'
+            g_val = str(gusti[i][1])
+            self.column_name = QLabel(g_val, self)
+            self.column_name.resize(s_dim_c_x, s_dim_c_y)
+            self.column_name.move((s_pos_x * 8), s_pos_y + (i - 1) * 20)
+            self.column_name.setFont(font_value)
+
+        ##########
+
+
+        ### DATABASE
+
+        import os
+import requests
+import json
+
+url = 'https://raw.githubusercontent.com/PietroF23/Server_0.1/main/db.json'
+def update_db():
+    print("Aggiornamento in corso!")
+    try:
+        os.remove("db.json")
+        with open("db.json", "w") as f:
+            page = requests.get(url)
+            txt = page.text
+            data = json.loads(txt)
+            json.dump(data, f)
+    except FileNotFoundError:
+        with open("db.json", "w") as f:
+            page = requests.get(url)
+            txt = page.text
+            data = json.loads(txt)
+            json.dump(data, f)
+
+def read_db():
+    try:
+        with open("./db.json") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        update_db()
+
+    return data
+
+
