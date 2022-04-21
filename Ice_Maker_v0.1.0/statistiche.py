@@ -2,14 +2,13 @@ from PyQt6.QtWidgets import QVBoxLayout, QWidget, QLabel
 from PyQt6.QtGui import QFont
 
 from download_db import read_db, read_localdb
-import json
 
 # POSIZIONE STATISTICHE
 s_pos_x = 30
 s_pos_y = 100
 
 # DIMENSIONE COLONNA STATISTICHE
-s_dim_c_x = 200
+s_dim_c_x = 300
 s_dim_c_y = 30
 
 # FONT STATISTICHE
@@ -46,15 +45,6 @@ class statistiche(QWidget):
         except KeyError:
             print("Errore chiave valori!")
         n_gusti = len(gusti)
-
-
-
-        # STATISTICHE GELATI DALL'ACCENSIONE
-        """n_gelati = QLabel(f"Numero Gelati (Dall'accensione) : {nacc}")
-        n_gelati.resize(s_dim_c_x, s_dim_c_y)
-        n_gelati.setFont(font_main)
-        lay.addWidget(n_gelati)"""
-
 
         # GENERAZIONE STATISTICHE SUI GUSTI UTILIZZATI
         for i in range(n_gusti):

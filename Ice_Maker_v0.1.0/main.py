@@ -9,8 +9,7 @@ from PyQt6.QtWidgets import (QWidget,
                              QLineEdit
                              )
 from PyQt6.QtCore import Qt
-import json
-
+import plot
 from capsula import Capsula
 from statistiche import statistiche
 from download_db import *
@@ -22,9 +21,13 @@ if x == True:
     x = False
 
 # LETTURA DATABASE GUSTI
+
 db = read_db()
-localdb= read_localdb()
+localdb = read_localdb()
+
 #################################
+
+
 
 # FINESTA IMPOSTAZIONI
 class Impostazioni(QWidget):
@@ -34,11 +37,10 @@ class Impostazioni(QWidget):
 
 
     def initUI(self):
-        global sel
         grid = QGridLayout()
 
         # RESET DATABASE LOCALE
-        reslocal = QPushButton("Reset")
+        reslocal = QPushButton("Reset_Local_DB")
         reslocal.clicked.connect(self.reset)
         grid.addWidget(reslocal, 2, 2)
 
@@ -66,13 +68,12 @@ class Impostazioni(QWidget):
         grid.addLayout(layout, 1, 1)
 
         # SIMULAZIONE INCREMENTO GELATO LOCALE
-
+        global line
         line = QLineEdit()
-        sel = line.text()
         grid.addWidget(line, 2, 1)
 
         add = QPushButton("AddTest")
-        add.clicked.connect(self.add)
+        add.clicked.connect(self.aggiungi)
         grid.addWidget(add, 2, 0)
 
         self.setLayout(grid)
@@ -86,11 +87,20 @@ class Impostazioni(QWidget):
     def reset(self):
         update_localdb()
 
-    def add(self):
+    def showPlot(self):
+        plot.customplot()
+
+    def aggiungi(self):
+        global c
+        localdb = read_localdb()
+        sel = line.text()
         for key, value in localdb.items():
             if key == sel:
-                localdb[key] = 1
-        print(localdb)
+                localdb[key] += 1
+        with open("localdb.json", "w") as f:
+            json.dump(localdb, f)
+
+
 
     def backclick(self):
         global ex
@@ -132,10 +142,11 @@ class Window(QWidget):
 
 
         # STATISTICHE
-
         c = statistiche()
         grid.addWidget(c, 0, 2)
         c.setMaximumHeight(400)
+
+
 
         self.setLayout(grid)
 
