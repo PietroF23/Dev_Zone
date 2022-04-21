@@ -9,7 +9,6 @@ from PyQt6.QtWidgets import (QWidget,
                              QLineEdit
                              )
 from PyQt6.QtCore import Qt
-import plot
 from capsula import Capsula
 from statistiche import statistiche
 from download_db import *
@@ -26,8 +25,6 @@ db = read_db()
 localdb = read_localdb()
 
 #################################
-
-
 
 # FINESTA IMPOSTAZIONI
 class Impostazioni(QWidget):
@@ -87,9 +84,6 @@ class Impostazioni(QWidget):
     def reset(self):
         update_localdb()
 
-    def showPlot(self):
-        plot.customplot()
-
     def aggiungi(self):
         global c
         localdb = read_localdb()
@@ -99,7 +93,6 @@ class Impostazioni(QWidget):
                 localdb[key] += 1
         with open("localdb.json", "w") as f:
             json.dump(localdb, f)
-
 
 
     def backclick(self):
@@ -118,8 +111,7 @@ class Window(QWidget):
     def initUI(self):
 
         okButton = QPushButton("OK")
-        grid = QGridLayout()
-
+        self.grid = QGridLayout()
         # CAPSULA
 
         caps = Capsula(
@@ -130,30 +122,42 @@ class Window(QWidget):
         caps.sizeHint()
         caps.setFixedWidth(100)
         caps.setFixedHeight(300)
-        grid.addWidget(caps, 0, 0)
+        self.grid.addWidget(caps, 0, 0)
 
-        grid.addWidget(okButton, 1, 0)
+        self.grid.addWidget(okButton, 1, 0)
 
         # BOTTONE IMPOSTAZIONI
         impost = QPushButton("Impostazioni")
         impost.setMaximumWidth(200)
-        grid.addWidget(impost, 1, 1, alignment=Qt.AlignmentFlag.AlignRight)
+        self.grid.addWidget(impost, 1, 1, alignment=Qt.AlignmentFlag.AlignRight)
         impost.clicked.connect(self.openimpost)
 
 
         # STATISTICHE
-        c = statistiche()
-        grid.addWidget(c, 0, 2)
-        c.setMaximumHeight(400)
+
+        self.upd()
+
+        btn = QPushButton("Aggiorna")
+        self.grid.addWidget(btn, 1, 2)
+        btn.clicked.connect(self.upd)
 
 
-
-        self.setLayout(grid)
+        self.setLayout(self.grid)
 
         self.setGeometry(400, 150, 800, 480)
         self.setWindowTitle('IceMaker v0.1.0')
         self.setStyleSheet('background-color:orange;')
         self.show()
+
+    def upd(self):
+        print("Success")
+        self.c = statistiche()
+        self.grid.addWidget(self.c, 0, 2)
+        self.c.setMaximumHeight(400)
+        ## QUI LE HO PROVATE TUTTE... MA NIENTE
+        self.c.update()
+        self.grid.update()
+        self.update()
 
     def openimpost(self):
         """Apertura Impostazioni"""
@@ -161,9 +165,6 @@ class Window(QWidget):
         global ex
         ex = Impostazioni()
         ex.show()
-
-
-
 
 def main():
     global ex
